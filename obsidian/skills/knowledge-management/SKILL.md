@@ -16,6 +16,8 @@ allowed-tools:
   - Bash(obsidian-cli move:*)
   - Bash(obsidian-cli m:*)
   - Bash(obsidian-cli delete:*)
+  - Bash(obsidian-cli edit:*)
+  - Bash(obsidian-cli e:*)
   - Read
   - Write
   - Grep
@@ -41,6 +43,7 @@ All commands have short aliases for convenience:
 | `open` | `o` |
 | `move` | `m` |
 | `delete` | `d` |
+| `edit` | `e` |
 
 ## Core Behaviors
 
@@ -193,14 +196,35 @@ EOF
 
 ### In-place Text Replacement
 
-Use sed with print/create --overwrite for text replacement:
+Use the `edit` command for direct text replacement in notes:
 
 ```bash
 # Replace first occurrence of "old" with "new"
-obsidian-cli c "note" --overwrite -c "$(obsidian-cli p "note" | sed 's/old/new/')"
+obsidian-cli edit "note" "old text" "new text"
+obsidian-cli e "note" "old" "new"
 
 # Replace all occurrences (global)
-obsidian-cli c "note" --overwrite -c "$(obsidian-cli p "note" | sed 's/old/new/g')"
+obsidian-cli edit "note" "old" "new" --all
+obsidian-cli e "note" "old" "new" --all
+
+# Works with @daily notes
+obsidian-cli edit @daily "TODO" "DONE" --all
+
+# Update task status
+obsidian-cli e "Plans/my-plan" "- [ ] Task" "- [x] Task" --all
+
+# Replace in specific sections
+obsidian-cli e "note" "old value" "new value"
+```
+
+**Alternative using sed** (for complex regex patterns):
+
+```bash
+# Replace with regex
+obsidian-cli c "note" --overwrite -c "$(obsidian-cli p "note" | sed 's/pattern/replacement/')"
+
+# Case-insensitive replacement
+obsidian-cli c "note" --overwrite -c "$(obsidian-cli p "note" | sed 's/old/new/gi')"
 ```
 
 ## Templates
@@ -257,6 +281,12 @@ obsidian-cli a @daily "\n- $(date +%H:%M) Decision: Using JWT over sessions for 
 
 # Update plan progress
 obsidian-cli a "Plans/jira-123-auth" "\n- $(date +%Y-%m-%d): Completed Layer 1 (database schema)"
+
+# Mark tasks complete using edit
+obsidian-cli e "Plans/jira-123-auth" "- [ ] Database schema" "- [x] Database schema"
+
+# Update status in content
+obsidian-cli e "Plans/jira-123-auth" "Status: In Progress" "Status: Testing"
 
 # Jump to specific section for reference
 obsidian-cli o "Plans/jira-123-auth" -s "Decision Log"
