@@ -1,0 +1,64 @@
+{
+  "name": "imri-marketplace",
+  "description": "Personal marketplace development automation plugins",
+  "version": "1.0.0",
+  "owner": {
+    "name": "Imri Paran",
+    "email": "imri.paran@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "obsidian",
+      "version": "1.1.0",
+      "source": "./obsidian/",
+      "description": "Obsidian integration with knowledge management - browse, search, track plans, and maintain daily notes",
+      "author": {
+        "name": "Imri Paran",
+        "email": "imri.paran@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": [
+        "obsidian",
+        "notes",
+        "knowledge-management",
+        "daily-notes",
+        "plans"
+      ]
+    },
+    {
+      "name": "python",
+      "version": "1.0.0",
+      "source": "./python/",
+      "description": "Python development workflows - code refinement and test optimization",
+      "author": {
+        "name": "Imri Paran",
+        "email": "imri.paran@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": [
+        "python",
+        "refactoring",
+        "pytest",
+        "code-quality",
+        "testing"
+      ]
+    },
+    {
+      "name": "gitlab-workflow",
+      "version": "1.0.0",
+      "source": "./gitlab-workflow/",
+      "description": "Streamline GitLab workflow with commands for committing, pushing, and creating merge requests",
+      "author": {
+        "name": "Imri Paran",
+        "email": "imri.paran@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": [
+        "git",
+        "gitlab",
+        "merge-request",
+        "workflow"
+      ]
+    }
+  ]
+}

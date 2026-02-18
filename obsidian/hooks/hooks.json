@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[Knowledge Management] Consider logging significant decisions to your daily note with: obsidian-cli append @daily'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

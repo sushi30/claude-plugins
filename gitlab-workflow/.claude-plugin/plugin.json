@@ -1,0 +1,15 @@
+{
+  "name": "gitlab-workflow",
+  "version": "1.0.0",
+  "description": "Streamline GitLab workflow with commands for committing, pushing, and creating merge requests",
+  "author": {
+    "name": "Imri Paran",
+    "email": "imri.paran@gmail.com"
+  },
+  "keywords": [
+    "git",
+    "gitlab",
+    "merge-request",
+    "workflow"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "python",
+  "version": "1.0.0",
+  "description": "Python development workflows - code refinement and test optimization",
+  "author": {
+    "name": "Imri Paran",
+    "email": "imri.paran@gmail.com"
+  },
+  "keywords": [
+    "python",
+    "refactoring",
+    "pytest",
+    "code-quality",
+    "testing"
+  ],
+  "skills": "./skills/"
+}

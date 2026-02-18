@@ -1,0 +1,20 @@
+{
+  "name": "obsidian",
+  "version": "1.2.0",
+  "description": "Obsidian integration with knowledge management - browse, read, search, maintain persistent notes, and manage tasks",
+  "author": {
+    "name": "Imri Paran",
+    "email": "imri.paran@gmail.com"
+  },
+  "keywords": [
+    "obsidian",
+    "notes",
+    "knowledge-management",
+    "daily-notes",
+    "plans",
+    "tasks",
+    "tasknotes",
+    "productivity"
+  ],
+  "skills": "./skills/"
+}
