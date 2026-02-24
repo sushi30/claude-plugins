@@ -9,6 +9,8 @@ allowed-tools:
   - Bash(obsidian-cli p:*)
   - Bash(obsidian-cli frontmatter:*)
   - Bash(obsidian-cli fm:*)
+  - Bash(obsidian-cli search:*)
+  - Bash(obsidian-cli s:*)
   - Bash(obsidian-cli search-content:*)
   - Bash(obsidian-cli sc:*)
   - Bash(obsidian-cli delete:*)
@@ -26,6 +28,40 @@ Manage tasks as Obsidian notes with YAML frontmatter metadata. Tasks are stored 
 ## Overview
 
 This skill uses the Obsidian CLI to manage tasks as markdown notes with structured frontmatter. Each task is a note with metadata stored in YAML frontmatter, making them fully compatible with Obsidian plugins and queries.
+
+**Key Features:**
+- **Frontmatter Filtering**: Native `--meta` support for efficient task queries
+- **Progress Tracking**: Track tasks by status (pending, in-progress, completed)
+- **Project Organization**: Filter and group tasks by project
+- **Priority Management**: Filter by priority (low, medium, high, urgent)
+- **Context Tagging**: Organize by context (work, home, backend, frontend)
+- **Due Date Tracking**: Monitor deadlines and overdue tasks
+
+## Quick Reference
+
+**Common Commands:**
+
+```bash
+# List todos (pending tasks)
+obsidian-cli ls "Tasks" --meta status=pending
+
+# Track progress (in-progress tasks)
+obsidian-cli ls "Tasks" --meta status=in-progress
+
+# List by project
+obsidian-cli ls "Tasks" --meta project=jira-456
+
+# High priority todos
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=high
+
+# Project progress
+obsidian-cli ls "Tasks" --meta project=jira-456 --meta status=pending
+obsidian-cli ls "Tasks" --meta project=jira-456 --meta status=in-progress
+
+# Interactive search
+obsidian-cli search --meta status=pending
+obsidian-cli search --meta project=jira-456
+```
 
 **Task Format:**
 ```markdown
@@ -118,24 +154,53 @@ EOF
 
 ### List Tasks
 
+The Obsidian CLI supports frontmatter filtering with `--meta` flags, making task queries simple and efficient.
+
 **List All Tasks:**
 ```bash
 obsidian-cli ls "Tasks"
 ```
 
-**List with Filtering (using grep/pattern matching):**
+**List by Status:**
 ```bash
-# List pending tasks
-obsidian-cli ls "Tasks" | while read task; do
-  status=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "status:" | cut -d: -f2 | xargs)
-  [[ "$status" == "pending" ]] && echo "$task"
-done
+# List pending tasks (todos)
+obsidian-cli ls "Tasks" --meta status=pending
 
-# List high priority tasks
-obsidian-cli ls "Tasks" | while read task; do
-  priority=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "priority:" | cut -d: -f2 | xargs)
-  [[ "$priority" == "high" ]] && echo "$task"
-done
+# List in-progress tasks
+obsidian-cli ls "Tasks" --meta status=in-progress
+
+# List completed tasks
+obsidian-cli ls "Tasks" --meta status=completed
+```
+
+**List by Priority:**
+```bash
+# High priority tasks
+obsidian-cli ls "Tasks" --meta priority=high
+
+# Urgent tasks
+obsidian-cli ls "Tasks" --meta priority=urgent
+```
+
+**List by Project:**
+```bash
+# All tasks for a specific project
+obsidian-cli ls "Tasks" --meta project=jira-456
+
+# All tasks for a project (alternative naming)
+obsidian-cli ls "Tasks" --meta project=feature-auth
+```
+
+**Combined Filters:**
+```bash
+# Pending high-priority tasks
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=high
+
+# In-progress tasks for specific project
+obsidian-cli ls "Tasks" --meta status=in-progress --meta project=jira-456
+
+# Urgent pending tasks
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=urgent
 ```
 
 **View Task Details:**
@@ -183,6 +248,23 @@ obsidian-cli fm "Tasks/task-name" --edit -k "project" --value "jira-123"
 
 ### Search Tasks
 
+The Obsidian CLI `search` command supports frontmatter filtering for interactive fuzzy search.
+
+**Search with Status Filter:**
+```bash
+# Search pending tasks interactively
+obsidian-cli search --meta status=pending
+
+# Search in-progress tasks
+obsidian-cli search --meta status=in-progress
+```
+
+**Search by Project:**
+```bash
+# Find tasks in specific project
+obsidian-cli search --meta project=jira-456
+```
+
 **Search Task Content:**
 ```bash
 # Search for tasks mentioning "authentication"
@@ -192,25 +274,115 @@ obsidian-cli sc "authentication" | grep "Tasks/"
 obsidian-cli sc "JIRA-456" | grep "Tasks/"
 ```
 
-**Find by Tag or Project:**
+**Combined Filters:**
 ```bash
-# Find all tasks (using standard task tag)
-obsidian-cli ls "Tasks" | while read task; do
-  tags=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep -A 10 "tags:")
-  [[ "$tags" =~ "task" ]] && echo "$task"
-done
+# Search urgent pending tasks
+obsidian-cli search --meta status=pending --meta priority=urgent
 
-# Find tasks with specific tag
-obsidian-cli ls "Tasks" | while read task; do
-  tags=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep -A 10 "tags:")
-  [[ "$tags" =~ "urgent" ]] && echo "$task"
-done
+# Search tasks for project with specific context
+obsidian-cli search --meta project=jira-456 --meta context=backend
+```
 
-# Find tasks by project
-obsidian-cli ls "Tasks" | while read task; do
-  project=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "project:" | cut -d: -f2 | xargs)
-  [[ "$project" == "jira-456" ]] && echo "$task"
+## Progress Tracking & Todo Lists
+
+### View Current Work (In Progress)
+
+Track what you're actively working on:
+
+```bash
+# Show all in-progress tasks
+obsidian-cli ls "Tasks" --meta status=in-progress
+
+# In-progress tasks for specific project
+obsidian-cli ls "Tasks" --meta status=in-progress --meta project=jira-456
+
+# View details of in-progress tasks
+obsidian-cli ls "Tasks" --meta status=in-progress | while read task; do
+  echo "=== $task ==="
+  obsidian-cli p "Tasks/$task"
+  echo
 done
+```
+
+### View Todos (Pending Tasks)
+
+List all pending work that needs attention:
+
+```bash
+# All pending tasks
+obsidian-cli ls "Tasks" --meta status=pending
+
+# Pending tasks by priority
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=high
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=urgent
+
+# Pending tasks for specific project
+obsidian-cli ls "Tasks" --meta status=pending --meta project=jira-456
+
+# Pending backend tasks
+obsidian-cli ls "Tasks" --meta status=pending --meta context=backend
+```
+
+### Project Progress Overview
+
+Track progress across a project:
+
+```bash
+# Function to show project progress
+show_project_progress() {
+  local project="$1"
+  echo "=== Project: $project ==="
+  echo
+  echo "Pending:"
+  obsidian-cli ls "Tasks" --meta project="$project" --meta status=pending | sed 's/^/  - /'
+  echo
+  echo "In Progress:"
+  obsidian-cli ls "Tasks" --meta project="$project" --meta status=in-progress | sed 's/^/  - /'
+  echo
+  echo "Completed:"
+  obsidian-cli ls "Tasks" --meta project="$project" --meta status=completed | sed 's/^/  - /'
+}
+
+# Usage:
+# show_project_progress "jira-456"
+```
+
+### Count Tasks by Status
+
+Quick statistics:
+
+```bash
+# Function to count tasks
+count_tasks() {
+  local project="${1:-}"
+
+  if [[ -n "$project" ]]; then
+    pending=$(obsidian-cli ls "Tasks" --meta project="$project" --meta status=pending 2>/dev/null | wc -l)
+    in_progress=$(obsidian-cli ls "Tasks" --meta project="$project" --meta status=in-progress 2>/dev/null | wc -l)
+    completed=$(obsidian-cli ls "Tasks" --meta project="$project" --meta status=completed 2>/dev/null | wc -l)
+    echo "Project $project: $pending pending, $in_progress in progress, $completed completed"
+  else
+    pending=$(obsidian-cli ls "Tasks" --meta status=pending 2>/dev/null | wc -l)
+    in_progress=$(obsidian-cli ls "Tasks" --meta status=in-progress 2>/dev/null | wc -l)
+    completed=$(obsidian-cli ls "Tasks" --meta status=completed 2>/dev/null | wc -l)
+    echo "All tasks: $pending pending, $in_progress in progress, $completed completed"
+  fi
+}
+
+# Usage:
+# count_tasks              # All tasks
+# count_tasks "jira-456"   # Specific project
+```
+
+### List All Projects
+
+Find all unique projects:
+
+```bash
+# Extract unique project values
+obsidian-cli ls "Tasks" | while read task; do
+  obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "^project:" | cut -d: -f2 | xargs
+done | sort -u | grep -v "^$"
 ```
 
 ### Delete Tasks
@@ -287,32 +459,72 @@ EOF
 
 ### Daily Task Review
 
-Check tasks for the day:
+Check tasks for the day using frontmatter filters:
+
+```bash
+# Find pending tasks (your current todos)
+obsidian-cli ls "Tasks" --meta status=pending
+
+# Find high-priority pending tasks
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=high
+
+# Find tasks currently in progress
+obsidian-cli ls "Tasks" --meta status=in-progress
+
+# Log to daily note
+obsidian-cli a @daily "\n- $(date +%H:%M) Task review: X tasks pending, Y in progress"
+```
+
+### Due Date Management
+
+Track tasks with due dates (requires shell scripting since due date filtering isn't built-in):
 
 ```bash
 # Find tasks due today
 today=$(date +%Y-%m-%d)
 obsidian-cli ls "Tasks" | while read task; do
-  due=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "due:" | cut -d: -f2 | xargs)
-  [[ "$due" == "$today" ]] && echo "$task"
+  due=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "^due:" | cut -d: -f2 | xargs)
+  status=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "^status:" | cut -d: -f2 | xargs)
+  if [[ "$due" == "$today" && "$status" != "completed" ]]; then
+    priority=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "^priority:" | cut -d: -f2 | xargs)
+    echo "[$priority] $task"
+  fi
 done
 
-# Log to daily note
-obsidian-cli a @daily "\n- $(date +%H:%M) Task review: X tasks pending, Y completed"
+# Find overdue tasks
+today=$(date +%Y-%m-%d)
+obsidian-cli ls "Tasks" | while read task; do
+  due=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "^due:" | cut -d: -f2 | xargs)
+  status=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "^status:" | cut -d: -f2 | xargs)
+  if [[ "$status" != "completed" && -n "$due" && "$due" < "$today" ]]; then
+    echo "OVERDUE: $task (due: $due)"
+  fi
+done
 ```
 
 ### Weekly Task Summary
 
 ```bash
-# Count completed tasks this week
-completed_count=0
-obsidian-cli ls "Tasks" | while read task; do
-  status=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "status:" | cut -d: -f2 | xargs)
-  completed=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "completed:" | cut -d: -f2 | xargs)
-  # Check if completed this week
-  [[ "$status" == "completed" ]] && ((completed_count++))
-done
-echo "Completed tasks: $completed_count"
+# Count completed tasks (simple)
+obsidian-cli ls "Tasks" --meta status=completed | wc -l
+
+# Show completed tasks
+echo "Completed tasks:"
+obsidian-cli ls "Tasks" --meta status=completed
+
+# Show pending work
+echo "Pending tasks:"
+obsidian-cli ls "Tasks" --meta status=pending
+
+# Show in-progress work
+echo "In progress:"
+obsidian-cli ls "Tasks" --meta status=in-progress
+
+# Full summary
+echo "=== Weekly Task Summary ==="
+echo "Completed: $(obsidian-cli ls "Tasks" --meta status=completed 2>/dev/null | wc -l)"
+echo "In Progress: $(obsidian-cli ls "Tasks" --meta status=in-progress 2>/dev/null | wc -l)"
+echo "Pending: $(obsidian-cli ls "Tasks" --meta status=pending 2>/dev/null | wc -l)"
 ```
 
 ## Helper Scripts
@@ -347,24 +559,54 @@ EOF
 # create_task "fix-bug" "Fix authentication bug" "high" "jira-123"
 ```
 
-### List Tasks by Status
+### List Tasks by Status (Simplified)
 
 ```bash
 list_tasks_by_status() {
   local filter_status="$1"
-  obsidian-cli ls "Tasks" | while read task; do
-    status=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "status:" | cut -d: -f2 | xargs)
-    if [[ "$status" == "$filter_status" ]]; then
-      priority=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "priority:" | cut -d: -f2 | xargs)
-      due=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "due:" | cut -d: -f2 | xargs)
-      echo "[$priority] $task ${due:+(due: $due)}"
-    fi
-  done
+  obsidian-cli ls "Tasks" --meta status="$filter_status"
 }
 
 # Usage:
 # list_tasks_by_status "pending"
 # list_tasks_by_status "in-progress"
+# list_tasks_by_status "completed"
+```
+
+### List Tasks by Project
+
+```bash
+list_tasks_by_project() {
+  local project="$1"
+  echo "=== Tasks for project: $project ==="
+  echo
+  echo "Pending:"
+  obsidian-cli ls "Tasks" --meta project="$project" --meta status=pending | sed 's/^/  /'
+  echo
+  echo "In Progress:"
+  obsidian-cli ls "Tasks" --meta project="$project" --meta status=in-progress | sed 's/^/  /'
+  echo
+  echo "Completed:"
+  obsidian-cli ls "Tasks" --meta project="$project" --meta status=completed | sed 's/^/  /'
+}
+
+# Usage:
+# list_tasks_by_project "jira-456"
+```
+
+### Show Task Details with Metadata
+
+```bash
+show_task() {
+  local task="$1"
+  echo "=== $task ==="
+  obsidian-cli fm "Tasks/$task" --print
+  echo
+  obsidian-cli p "Tasks/$task"
+}
+
+# Usage:
+# show_task "implement-api"
 ```
 
 ### Complete Task with Timestamp
@@ -379,6 +621,31 @@ complete_task() {
 
 # Usage:
 # complete_task "fix-auth-bug"
+```
+
+### Daily Dashboard
+
+Show all relevant tasks for today:
+
+```bash
+daily_dashboard() {
+  echo "=== Daily Task Dashboard ==="
+  echo
+  echo "In Progress ($(obsidian-cli ls "Tasks" --meta status=in-progress 2>/dev/null | wc -l)):"
+  obsidian-cli ls "Tasks" --meta status=in-progress | sed 's/^/  /'
+  echo
+  echo "High Priority Pending ($(obsidian-cli ls "Tasks" --meta status=pending --meta priority=high 2>/dev/null | wc -l)):"
+  obsidian-cli ls "Tasks" --meta status=pending --meta priority=high | sed 's/^/  /'
+  echo
+  echo "Urgent Pending ($(obsidian-cli ls "Tasks" --meta status=pending --meta priority=urgent 2>/dev/null | wc -l)):"
+  obsidian-cli ls "Tasks" --meta status=pending --meta priority=urgent | sed 's/^/  /'
+  echo
+  echo "All Pending ($(obsidian-cli ls "Tasks" --meta status=pending 2>/dev/null | wc -l)):"
+  obsidian-cli ls "Tasks" --meta status=pending | sed 's/^/  /'
+}
+
+# Usage:
+# daily_dashboard
 ```
 
 ## Best Practices
@@ -418,20 +685,22 @@ WHERE contains(tags, "jira-456")
 
 ## Limitations
 
-1. **No Complex Filtering**: Unlike TaskNotes CLI, filtering requires shell scripts
-2. **Manual Tag Updates**: Updating frontmatter arrays requires careful editing
-3. **No Built-in Stats**: Need custom scripts for project statistics
+1. **Manual Tag Updates**: Updating frontmatter arrays requires careful editing
+2. **No Date Filtering**: Due date filtering requires shell scripts (not built into `--meta`)
+3. **No Built-in Stats**: Need custom scripts for detailed project statistics
 4. **File-based**: Each task is a separate file (can clutter vault)
 
 ## Advantages
 
 1. **Native Obsidian**: Works with all Obsidian plugins (Dataview, Tasks, etc.)
 2. **No HTTP API**: No dependency on running plugin servers
-3. **Plain Markdown**: Tasks are readable, editable markdown files
-4. **Version Control**: Easy to track in git with meaningful diffs
-5. **Flexible Structure**: Can add custom frontmatter fields as needed
-6. **Links Work**: Can use `[[wikilinks]]` to reference other notes
-7. **Standard Tag**: All tasks have the `task` tag for easy filtering with Dataview queries (`FROM #task`)
+3. **Native Frontmatter Filtering**: Built-in `--meta` support for efficient queries
+4. **Plain Markdown**: Tasks are readable, editable markdown files
+5. **Version Control**: Easy to track in git with meaningful diffs
+6. **Flexible Structure**: Can add custom frontmatter fields as needed
+7. **Links Work**: Can use `[[wikilinks]]` to reference other notes
+8. **Standard Tag**: All tasks have the `task` tag for easy filtering with Dataview queries (`FROM #task`)
+9. **Fast Queries**: Filter by status, priority, project without complex scripting
 
 ## Migration from TaskNotes
 
@@ -450,21 +719,31 @@ If migrating from TaskNotes:
 # 1. Create daily note
 obsidian-cli daily
 
-# 2. Check pending tasks
-list_tasks_by_status "pending"
+# 2. Show daily dashboard
+echo "=== Today's Tasks ==="
+echo
+echo "In Progress:"
+obsidian-cli ls "Tasks" --meta status=in-progress | sed 's/^/  - /'
+echo
+echo "High Priority:"
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=high | sed 's/^/  - /'
+echo
+echo "Urgent:"
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=urgent | sed 's/^/  - /'
 
-# 3. Find overdue tasks
+# 3. Check for overdue tasks
+echo
+echo "Overdue Tasks:"
 today=$(date +%Y-%m-%d)
-obsidian-cli ls "Tasks" | while read task; do
-  status=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "status:" | cut -d: -f2 | xargs)
-  due=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "due:" | cut -d: -f2 | xargs)
-  if [[ "$status" != "completed" && "$due" < "$today" ]]; then
-    echo "OVERDUE: $task (due: $due)"
+obsidian-cli ls "Tasks" --meta status=pending | while read task; do
+  due=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "^due:" | cut -d: -f2 | xargs)
+  if [[ -n "$due" && "$due" < "$today" ]]; then
+    echo "  - $task (due: $due)"
   fi
 done
 
 # 4. Log task plan to daily
-obsidian-cli a @daily "\n- $(date +%H:%M) Today's focus: Task A, Task B"
+obsidian-cli a @daily "\n- $(date +%H:%M) Today's focus: [list key tasks]"
 ```
 
 ### Starting New Work
@@ -513,16 +792,41 @@ obsidian-cli a @daily "\n- $(date +%H:%M) Started JIRA-789: API implementation"
 # 1. Complete finished tasks
 complete_task "implement-jira-789-api"
 
-# 2. Update in-progress tasks
-obsidian-cli fm "Tasks/refactor-database" --edit -k "status" --value "in-progress"
+# 2. Review what's still in progress
+echo "Still in progress:"
+obsidian-cli ls "Tasks" --meta status=in-progress
 
 # 3. Log progress to daily
-obsidian-cli a @daily "\n- $(date +%H:%M) Session end: Completed API, refactoring in progress"
+obsidian-cli a @daily "\n- $(date +%H:%M) Session end: Completed X tasks, Y in progress"
 
-# 4. Review tomorrow's tasks
-tomorrow=$(date -v+1d +%Y-%m-%d)
-obsidian-cli ls "Tasks" | while read task; do
-  due=$(obsidian-cli fm "Tasks/$task" --print 2>/dev/null | grep "due:" | cut -d: -f2 | xargs)
-  [[ "$due" == "$tomorrow" ]] && echo "Tomorrow: $task"
-done
+# 4. Check tomorrow's priorities
+echo "High priority for tomorrow:"
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=high
+obsidian-cli ls "Tasks" --meta status=pending --meta priority=urgent
+```
+
+### Project-Based Workflow
+
+Working on a specific project:
+
+```bash
+# 1. View all project tasks
+PROJECT="jira-456"
+
+echo "=== Project $PROJECT Tasks ==="
+echo
+echo "Pending:"
+obsidian-cli ls "Tasks" --meta project="$PROJECT" --meta status=pending
+echo
+echo "In Progress:"
+obsidian-cli ls "Tasks" --meta project="$PROJECT" --meta status=in-progress
+echo
+echo "Completed:"
+obsidian-cli ls "Tasks" --meta project="$PROJECT" --meta status=completed
+
+# 2. Start working on a task
+obsidian-cli fm "Tasks/implement-jira-456-api" --edit -k "status" --value "in-progress"
+
+# 3. Track progress in daily note
+obsidian-cli a @daily "\n- $(date +%H:%M) Working on $PROJECT"
 ```

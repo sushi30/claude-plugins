@@ -40,7 +40,7 @@ EOF
 ```
 
 ```bash
-glab mr create --fill --title "title" --description "$(cat <<'EOF'
+glab mr create --title "title" --description "$(cat <<'EOF'
 ## Summary
 - change 1
 - change 2
