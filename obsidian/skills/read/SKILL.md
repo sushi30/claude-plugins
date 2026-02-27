@@ -121,4 +121,4 @@ This skill is **read-only**. It cannot:
 - Modify existing notes
 - Delete files
 
-For write operations, use the `knowledge-management` skill.
+For write operations, use the `write` skill.
