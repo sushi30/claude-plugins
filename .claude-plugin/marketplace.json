@@ -44,6 +44,25 @@
       ]
     },
     {
+      "name": "tdd",
+      "version": "1.0.0",
+      "source": "./tdd/",
+      "description": "Test-driven development workflow — hypothesis-driven debugging and red/green/refactor cycles",
+      "author": {
+        "name": "Imri Paran",
+        "email": "imri.paran@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": [
+        "tdd",
+        "testing",
+        "pytest",
+        "red-green-refactor",
+        "debugging",
+        "workflow"
+      ]
+    },
+    {
       "name": "gitlab-workflow",
       "version": "1.0.0",
       "source": "./gitlab-workflow/",
