@@ -13,12 +13,15 @@ Personal plugin collection for [Claude Code](https://docs.anthropic.com/en/docs/
 
 ## Installation
 
+```bash
+git clone https://github.com/sushi30/claude-plugins.git
+cd claude-plugins
+```
+
 ### Claude Code
 
-Add the marketplace and install plugins:
-
 ```bash
-claude plugin marketplace add /path/to/claude-plugins/.claude-plugin/marketplace.json
+claude plugin marketplace add "$(pwd)/.claude-plugin/marketplace.json"
 claude plugin install obsidian
 claude plugin install python
 claude plugin install tdd
@@ -27,27 +30,26 @@ claude plugin install gitlab-workflow
 
 ### OpenCode
 
-Clone the repo and symlink (or copy) the `.opencode/` directory into your project:
+#### Per-project install
+
+Symlink (or copy) `.opencode/` into your target project:
 
 ```bash
-# Symlink into your project
-ln -s /path/to/claude-plugins/.opencode /path/to/your-project/.opencode
-
-# Or copy
-cp -r /path/to/claude-plugins/.opencode /path/to/your-project/.opencode
+ln -s "$(pwd)/.opencode" /path/to/your-project/.opencode
 ```
 
-The `.opencode/` directory contains pre-generated skills, commands, and plugins in OpenCode's native format. OpenCode discovers them automatically on startup.
+#### Global install
 
-Alternatively, symlink into the global config to make them available across all projects:
+Make skills, commands, and plugins available across all projects:
 
 ```bash
-# Global skills
-ln -s /path/to/claude-plugins/.opencode/skills/* ~/.config/opencode/skills/
-
-# Global commands
-ln -s /path/to/claude-plugins/.opencode/commands/* ~/.config/opencode/commands/
+mkdir -p ~/.config/opencode/skills ~/.config/opencode/commands ~/.config/opencode/plugins
+ln -s "$(pwd)"/.opencode/skills/* ~/.config/opencode/skills/
+ln -s "$(pwd)"/.opencode/commands/* ~/.config/opencode/commands/
+ln -s "$(pwd)"/.opencode/plugins/* ~/.config/opencode/plugins/
 ```
+
+OpenCode discovers them automatically on startup.
 
 ## Regenerating OpenCode artifacts
 
